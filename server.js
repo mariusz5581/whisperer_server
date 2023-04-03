@@ -32,6 +32,31 @@ function readMessages(userFile, recipient) {
   return XLSX.utils.sheet_to_json(sheet);
 }
 
+function initializeUserFiles() {
+  // Check if users.xls exists, and create it with initial data if not
+  if (!fs.existsSync('users.xls')) {
+    debug('Creating users.xls file');
+    const users = [
+      { Username: 'user1', Password: '1234', MessagesFile: 'messages_user1.xls' },
+      { Username: 'user2', Password: '5678', MessagesFile: 'messages_user2.xls' },
+      { Username: 'user3', Password: '9012', MessagesFile: 'messages_user3.xls' },
+    ];
+    const workbook = XLSX.utils.book_new();
+    const sheet = XLSX.utils.json_to_sheet(users);
+    XLSX.utils.book_append_sheet(workbook, sheet, 'Users');
+    XLSX.writeFile(workbook, 'users.xls');
+  }
+
+  // Create individual user message files if they don't exist
+  const users = readXLSFile('users.xls');
+  users.forEach((user) => {
+    if (!fs.existsSync(user.MessagesFile)) {
+      debug(`Creating ${user.MessagesFile}`);
+      const workbook = XLSX.utils.book_new();
+      XLSX.writeFile(workbook, user.MessagesFile);
+    }
+  });
+}
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
@@ -62,6 +87,8 @@ app.get('/messages/:username/:recipient', (req, res) => {
   res.status(200).json(messages);
 });
 
+initializeUserFiles();
+
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server is running at http://167.86.88.177:${port}`);
 });
