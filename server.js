@@ -6,6 +6,7 @@ const debug = require('debug')('server');
 const app = express();
 const port = 3000;
 
+initializeUserFiles();
 app.use(bodyParser.json());
 
 function readXLSFile(filename) {
@@ -55,8 +56,9 @@ function initializeUserFiles() {
       const workbook = XLSX.utils.book_new();
       XLSX.writeFile(workbook, user.MessagesFile);
     }
-  });
+});
 }
+
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
@@ -87,7 +89,6 @@ app.get('/messages/:username/:recipient', (req, res) => {
   res.status(200).json(messages);
 });
 
-initializeUserFiles();
 
 app.listen(port, () => {
   console.log(`Server is running at http://167.86.88.177:${port}`);
