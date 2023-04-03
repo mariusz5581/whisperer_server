@@ -77,19 +77,27 @@ app.post('/login', (req, res) => {
   }
 });
 
-app.get('/messages/:username/:recipient', (req, res) => {
-  const { username, recipient } = req.params;
-  const users = readXLSFile('users.xls');
-  const user = users.find((u) => u.Username === username);
-
-  if (!user) {
-    res.status(404).send('User not found');
-    return;
-  }
-
-  const messages = readMessages(user.MessagesFile, recipient);
-  res.status(200).json(messages);
-});
+app.get('/recipients/:username', (req, res) => {
+    const username = req.params.username;
+    const users = readXLSFile('users.xls');
+    const recipients = users.filter(user => user.Username !== username);
+    res.json(recipients);
+  });
+  
+  app.post('/addRecipient/:username', (req, res) => {
+    const username = req.params.username;
+    const newRecipient = req.body.newRecipient;
+  
+    const users = readXLSFile('users.xls');
+    const recipientExists = users.some(user => user.Username === newRecipient);
+  
+    if (recipientExists) {
+      // Update the recipient list or perform any required actions on the server
+      res.status(200).send('Recipient added');
+    } else {
+      res.status(400).send('Recipient not found');
+    }
+  });
 
 
 app.listen(port, () => {
