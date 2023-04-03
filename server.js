@@ -54,6 +54,8 @@ function initializeUserFiles() {
     if (!fs.existsSync(user.MessagesFile)) {
       debug(`Creating ${user.MessagesFile}`);
       const workbook = XLSX.utils.book_new();
+      const emptySheet = XLSX.utils.json_to_sheet([]);
+      XLSX.utils.book_append_sheet(workbook, emptySheet, 'Empty');
       XLSX.writeFile(workbook, user.MessagesFile);
     }
 });
